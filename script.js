@@ -11,6 +11,8 @@ const divideButton=document.querySelector("#divide");
 const equalsButton=document.querySelector("#equals");
 const deleteButton=document.querySelector("#delete");
 const decimalButton=document.querySelector("#decimal");
+const bracketButton=document.querySelector("#bracket");
+const bracketCloseButton=document.querySelector("#bracketClose");
 
 
 
@@ -27,7 +29,39 @@ function isOperator(value) {
     return value === "+" || value === "-" || value === "*" || value === "/";
 }
 
+function calculateBrackets(expression) {
 
+    while (expression.includes("(")) {
+
+        const openIndex = expression.lastIndexOf("(");
+        const closeIndex = expression.indexOf(")", openIndex);
+
+        if (closeIndex === -1) {
+            return "Error: Missing bracket";
+        }
+
+        const inside = expression.slice(openIndex + 1, closeIndex);
+
+        if (inside === "") {
+            return "Error: Empty brackets";
+        }
+
+        const result = calculateExpression(inside);
+
+        if (hasError) {
+            return "Error";
+        }
+
+        const bracketExpression = expression.slice(openIndex, closeIndex + 1);
+
+        expression = expression.replace(
+            bracketExpression,
+            result.toString()
+        );
+    }
+
+    return expression;
+}
 function calculateExpression(expression) {                          //function to calculate the expression
 
     const numbers = expression.split(/[+\-*/]/);
@@ -37,12 +71,16 @@ function calculateExpression(expression) {                          //function t
     });
 
     const operators = expression.match(/[+\-*/]/g);
-
+    if (operators === null) {
+        return nums[0];
+    }
     console.log(nums);
     console.log(operators);
 
     for (let i = 0; i < operators.length; i++) {
-
+        if (operators === null) {
+            return nums[0];
+        }
         const num1 = nums[i];
         const num2 = nums[i + 1];
 
@@ -152,12 +190,22 @@ divideButton.addEventListener("click",function(){
 });
 
 
-equalsButton.addEventListener("click",function(){
-    const expression = display.value;
-    const result = calculateExpression(expression);
-    display.value = result;
+equalsButton.addEventListener("click", function () {
+
+    let expression = display.value;
+
+    expression = calculateBrackets(expression);
+
+    if (expression.startsWith("Error")) {
+        display.value = expression;
+        hasError = true;
+        return;
     }
-);
+
+    const result = calculateExpression(expression);
+
+    display.value = result;
+});
 
 deleteButton.addEventListener("click",function(){
     display.value=display.value.slice(0,-1);
@@ -174,4 +222,14 @@ decimalButton.addEventListener("click",function(){
     } else {
         display.value = display.value + "."
     }
+});
+
+bracketButton.addEventListener("click", function () {
+    clearError();
+    display.value = display.value + "(";
+});
+
+bracketCloseButton.addEventListener("click", function () {
+    clearError();
+    display.value = display.value + ")";
 });
