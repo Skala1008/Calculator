@@ -164,7 +164,14 @@ deleteButton.addEventListener("click",function(){
 })
 
 decimalButton.addEventListener("click",function(){
-    if (!display.value.includes(".")) {
-        display.value = display.value + ".";
+    const parts = display.value.split(/[+\-*/]/);
+    const lastNumber = parts[parts.length - 1];
+    if (lastNumber.includes(".")) {
+        //display.value = display.value + "."
+        return;
+    } else if (isOperator(display.value.slice(-1)) || display.value === "") {
+        display.value = display.value + "0.";
+    } else {
+        display.value = display.value + "."
     }
 });
